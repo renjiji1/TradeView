@@ -11,17 +11,20 @@ def main():
     #Add whatever you want to check for
 
 
-def WatchPrice(tickers, lowThreshold, highThreshold):
-    for tickerStr in tickers:
-        try:
-            ticker = yfn.Ticker(tickerStr)
-            currentPrice = ticker.info["currentPrice"]
-            if currentPrice >= highThreshold:
-                print("high price")
-            if currentPrice <= lowThreshold:
-                print("low price")
-        except:
-            print("error")
+def WatchPrice(tickerStr, lowThreshold, highThreshold):
+    try:
+        ticker = yfn.Ticker(tickerStr)
+        output = "0"
+        currentPrice = ticker.info["currentPrice"]
+        if currentPrice >= highThreshold:
+            output = "high price"
+        elif currentPrice <= lowThreshold:
+            output = "low price"
+        else:
+            output = "in bound of limits"
+    except:
+        output = "-1"
+    return {"output" : output, "curPrice" : currentPrice}
 
 def AtLow(tickers, threshold):
     for tickerStr in tickers:
@@ -55,21 +58,20 @@ def AtHigh(tickers, threshold):
         except:
             print("error")
 
-def IntervalIncrease(tickers, days, threshold):
+def IntervalIncrease(tickerStr, days, threshold):
     if days > 365:
         print("too many days")
     else:
-        for tickerStr in tickers:
-            try:
-                ticker = yfn.Ticker(tickerStr)
-                daysIndx = ticker.history(period="12mo").index[days-1]
-                firstDayPrice = ticker.history(period="12mo").at[daysIndx, "Open"]
-                currentPrice = ticker.info["currentPrice"]
-                increase = 1 - (firstDayPrice / currentPrice)
-                if increase >= threshold:
-                    print(increase)
-            except:
-                print("error")
+        try:
+            ticker = yfn.Ticker(tickerStr)
+            daysIndx = ticker.history(period="12mo").index[days-1]
+            firstDayPrice = ticker.history(period="12mo").at[daysIndx, "Open"]
+            currentPrice = ticker.info["currentPrice"]
+            increase = 1 - (firstDayPrice / currentPrice)
+            if increase >= threshold:
+                print(increase)
+        except:
+            print("error")
 
 def IntervalDecrease(tickers, days, threshold):
     if days > 365:
@@ -86,6 +88,3 @@ def IntervalDecrease(tickers, days, threshold):
                     print("high decrease")
             except:
                 print("error")   
-
-if __name__ == "__main__":
-    main()
